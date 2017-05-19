@@ -39,6 +39,11 @@ func API(addr string) {
 	v1.GET("/interfaces/:type/:num/ipv4/netmask", metadata.NetworkInterfaceIPv4NetmaskHandle)
 	v1.GET("/interfaces/:type/:num/ipv4/gateway", metadata.NetworkInterfaceIPv4GatewayHandle)
 
+	v1.GET("/interfaces/:type/:num/floating_ip/", metadata.NetworkInterfaceFloatingIPIndexHandle)
+	v1.GET("/interfaces/:type/:num/floating_ip/address", metadata.NetworkInterfaceFloatingIPAddressHandle)
+	v1.GET("/interfaces/:type/:num/floating_ip/netmask", metadata.NetworkInterfaceFloatingIPNetmaskHandle)
+	v1.GET("/interfaces/:type/:num/floating_ip/gateway", metadata.NetworkInterfaceFloatingIPGatewayHandle)
+
 	v1.GET("/dns/", metadata.DnsIndexHandle)
 	v1.GET("/dns/nameservers", metadata.DnsNameserversHandle)
 	v1.GET("/dns/searchdomains", metadata.DnsSearchDomainsHandle)

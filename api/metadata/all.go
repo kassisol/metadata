@@ -69,6 +69,16 @@ func AllJsonHandle(c echo.Context) error {
 				}
 			}
 
+			if s.FloatingIPExists(serverid, itype, i) {
+				floatingip := map[string]string{
+					"ip_address": s.GetInterfaceFloatingIPAddress(serverid, itype, i),
+					"netmask":    s.GetInterfaceFloatingIPNetmask(serverid, itype, i),
+					"gateway":    s.GetInterfaceFloatingIPGateway(serverid, itype, i),
+				}
+
+				mMap["floating_ip"] = floatingip
+			}
+
 			interfaces[itype] = append(interfaces[itype], mMap)
 		}
 	}

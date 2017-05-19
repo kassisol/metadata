@@ -6,16 +6,48 @@ import (
 	"github.com/kassisol/metadata/storage/driver"
 )
 
-func (c *Config) AddInterface(index int, mac, ip string) error {
+func (c *Config) AddInterface(index int, mac, ip, floatingIP string) error {
 	i := IP{}
-
 	c.DB.Where("ip_address = ?", ip).First(&i)
 
-	c.DB.Create(&Interface{
+	intf := Interface{
 		Index:      index,
 		MACAddress: mac,
 		IPID:       i.ID,
-	})
+	}
+
+	if len(floatingIP) > 0 {
+		f := IP{}
+		c.DB.Where("ip_address = ?", floatingIP).First(&f)
+
+		intf.FloatingIPID = f.ID
+	}
+
+	c.DB.Create(&intf)
+
+	return nil
+}
+
+func (c *Config) UpdateInterface(mac, itype, value string) error {
+	r := c.ListIP(map[string]string{"ip": value})
+	if len(r) == 0 {
+		return fmt.Errorf("IP address '%s' does not exist", value)
+	}
+
+	i := IP{}
+	c.DB.Where("ip_address = ?", value).First(&i)
+
+	intf := Interface{}
+	c.DB.Where("mac_address= ?", mac).First(&intf)
+
+	if itype == "ip" {
+		intf.IPID = i.ID
+	}
+	if itype == "floatingip" {
+		intf.FloatingIPID = i.ID
+	}
+
+	c.DB.Save(&intf)
 
 	return nil
 }
@@ -33,35 +65,27 @@ func (c *Config) RemoveInterface(mac string) error {
 func (c *Config) ListInterface(filter map[string]string) []driver.InterfaceResult {
 	var result []driver.InterfaceResult
 
-	sql := c.DB.Table("interfaces").Select("interfaces.mac_address, ips.id, ips.ip_address, ips.netmask, ips.gateway").Joins("JOIN ips ON ips.id = interfaces.ip_id")
-
-	if v, ok := filter["ip"]; ok {
-		sql = sql.Where("ips.ip_address = ?", v)
-	}
-
-	if v, ok := filter["netmask"]; ok {
-		sql = sql.Where("ips.netmask = ?", v)
-	}
-
-	if v, ok := filter["gateway"]; ok {
-		sql = sql.Where("ips.gateway = ?", v)
-	}
+	sql := c.DB.Table("interfaces").Select("`index`, mac_address, ip_id, floating_ip_id")
 
 	rows, _ := sql.Rows()
 	defer rows.Close()
 
 	for rows.Next() {
+		var d_index int
 		var d_mac string
-		var d_id uint
 		var d_ip string
-		var d_netmask string
-		var d_gateway string
+		var d_floating_ip string
 
-		rows.Scan(&d_mac, &d_id, &d_ip, &d_netmask, &d_gateway)
+		rows.Scan(&d_index, &d_mac, &d_ip, &d_floating_ip)
 
-		ir := driver.IPResult{ID: d_id, IPAddress: d_ip, Netmask: d_netmask, Gateway: d_gateway}
+		ir := c.ListIP(map[string]string{"id": d_ip})[0]
 
-		result = append(result, driver.InterfaceResult{MACAddress: d_mac, IP: ir})
+		fir := driver.IPResult{}
+		if d_floating_ip != "0" {
+			fir = c.ListIP(map[string]string{"id": d_floating_ip})[0]
+		}
+
+		result = append(result, driver.InterfaceResult{Index: d_index, MACAddress: d_mac, IP: ir, FloatingIP: fir})
 	}
 
 	return result

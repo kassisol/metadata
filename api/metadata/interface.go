@@ -73,6 +73,10 @@ func NetworkEnumeratedInterfaceIndexHandle(c echo.Context) error {
 		result = append(result, fmt.Sprintf("%s/", i))
 	}
 
+	if s.FloatingIPExists(serverid, itype, i) {
+		result = append(result, "floating_ip/")
+	}
+
 	return c.String(http.StatusOK, strings.Join(result, "\n"))
 }
 
@@ -172,6 +176,70 @@ func NetworkInterfaceIPv4GatewayHandle(c echo.Context) error {
 	i, _ := strconv.Atoi(index)
 
 	result := s.GetInterfaceIPv4Gateway(serverid, itype, i)
+
+	return c.String(http.StatusOK, result)
+}
+
+func NetworkInterfaceFloatingIPIndexHandle(c echo.Context) error {
+	result := []string{
+		"address",
+		"netmask",
+		"gateway",
+	}
+
+	return c.String(http.StatusOK, strings.Join(result, "\n"))
+}
+
+func NetworkInterfaceFloatingIPAddressHandle(c echo.Context) error {
+	itype := c.Param("type")
+	index := c.Param("num")
+	serverid := c.Get("SERVERID").(int)
+
+	s, err := storage.NewDriver("sqlite", command.DBFilePath)
+	if err != nil {
+		return err
+	}
+	defer s.End()
+
+	i, _ := strconv.Atoi(index)
+
+	result := s.GetInterfaceFloatingIPAddress(serverid, itype, i)
+
+	return c.String(http.StatusOK, result)
+}
+
+func NetworkInterfaceFloatingIPNetmaskHandle(c echo.Context) error {
+	itype := c.Param("type")
+	index := c.Param("num")
+	serverid := c.Get("SERVERID").(int)
+
+	s, err := storage.NewDriver("sqlite", command.DBFilePath)
+	if err != nil {
+		return err
+	}
+	defer s.End()
+
+	i, _ := strconv.Atoi(index)
+
+	result := s.GetInterfaceFloatingIPNetmask(serverid, itype, i)
+
+	return c.String(http.StatusOK, result)
+}
+
+func NetworkInterfaceFloatingIPGatewayHandle(c echo.Context) error {
+	itype := c.Param("type")
+	index := c.Param("num")
+	serverid := c.Get("SERVERID").(int)
+
+	s, err := storage.NewDriver("sqlite", command.DBFilePath)
+	if err != nil {
+		return err
+	}
+	defer s.End()
+
+	i, _ := strconv.Atoi(index)
+
+	result := s.GetInterfaceFloatingIPGateway(serverid, itype, i)
 
 	return c.String(http.StatusOK, result)
 }

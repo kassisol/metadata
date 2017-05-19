@@ -21,8 +21,10 @@ type IPResult struct {
 }
 
 type InterfaceResult struct {
+	Index      int
 	MACAddress string
 	IP         IPResult
+	FloatingIP IPResult
 }
 
 type HostResult struct {

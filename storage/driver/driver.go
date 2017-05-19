@@ -24,7 +24,8 @@ type Storager interface {
 	RemoveIP(ipaddr string) error
 	CountIP() int
 
-	AddInterface(index int, mac, ip string) error
+	AddInterface(index int, mac, ip, floatingIP string) error
+	UpdateInterface(mac, itype, value string) error
 	ListInterface(filter map[string]string) []InterfaceResult
 	RemoveInterface(mac string) error
 	CountInterface() int
@@ -53,6 +54,10 @@ type Storager interface {
 	GetInterfaceIPv4Address(srvid int, itype string, index int) string
 	GetInterfaceIPv4Netmask(srvid int, itype string, index int) string
 	GetInterfaceIPv4Gateway(srvid int, itype string, index int) string
+	FloatingIPExists(srvid int, itype string, index int) bool
+	GetInterfaceFloatingIPAddress(srvid int, itype string, index int) string
+	GetInterfaceFloatingIPNetmask(srvid int, itype string, index int) string
+	GetInterfaceFloatingIPGateway(srvid int, itype string, index int) string
 	GetDNSIndex(srvid int) []string
 	GetDNSNameservers(srvid int) []string
 	GetDNSSearchDomains(srvid int) []string

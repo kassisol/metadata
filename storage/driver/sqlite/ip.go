@@ -45,6 +45,10 @@ func (c *Config) ListIP(filter map[string]string) []driver.IPResult {
 
 	sql := c.DB.Table("ips").Select("id, ip_address, netmask, gateway")
 
+	if v, ok := filter["id"]; ok {
+		sql = sql.Where("id = ?", v)
+	}
+
 	if v, ok := filter["ip"]; ok {
 		sql = sql.Where("ip_address = ?", v)
 	}

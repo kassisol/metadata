@@ -44,10 +44,10 @@ func runList(cmd *cobra.Command, args []string) {
 
 	if len(interfaces) > 0 {
 		w := tabwriter.NewWriter(os.Stdout, 20, 1, 2, ' ', 0)
-		fmt.Fprintln(w, "MAC ADDRESS\tIP ADDRESS\tNETMASK\tGATEWAY")
+		fmt.Fprintln(w, "INDEX\tMAC ADDRESS\tIP ADDRESS\tFLOATING IP")
 
 		for _, inf := range interfaces {
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", inf.MACAddress, inf.IP.IPAddress, inf.IP.Netmask, inf.IP.Gateway)
+			fmt.Fprintf(w, "%d\t%s\t%s\t%s\n", inf.Index, inf.MACAddress, inf.IP.IPAddress, inf.FloatingIP.IPAddress)
 		}
 
 		w.Flush()

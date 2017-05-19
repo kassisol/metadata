@@ -40,10 +40,12 @@ type IP struct {
 
 type Interface struct {
 	Model
-	Index      int
-	MACAddress string `gorm:"unique;"`
-	IP         IP
-	IPID       uint
+	Index        int
+	MACAddress   string `gorm:"unique;"`
+	IP           IP
+	IPID         uint
+	FloatingIP   IP
+	FloatingIPID uint
 }
 
 type Host struct {

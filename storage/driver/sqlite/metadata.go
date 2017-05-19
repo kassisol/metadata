@@ -161,6 +161,48 @@ func (c *Config) GetInterfaceIPv4Gateway(srvid int, itype string, index int) str
 	return result
 }
 
+func (c *Config) FloatingIPExists(srvid int, itype string, index int) bool {
+	var count int64
+
+	c.DB.Table("hosts").Select("ips.ip_address").Joins("JOIN host_interfaces ON host_interfaces.host_id = hosts.id").Joins("JOIN interfaces ON interfaces.id = host_interfaces.interface_id").Joins("JOIN ips ON ips.id = interfaces.floating_ip_id").Where("hosts.id = ?", srvid).Where("ips.type = ?", itype).Where("interfaces.`index` = ?", index).Count(&count)
+
+	if count > 0 {
+		return true
+	}
+
+	return false
+}
+
+func (c *Config) GetInterfaceFloatingIPAddress(srvid int, itype string, index int) string {
+	var result string
+
+	row := c.DB.Table("hosts").Select("ips.ip_address").Joins("JOIN host_interfaces ON host_interfaces.host_id = hosts.id").Joins("JOIN interfaces ON interfaces.id = host_interfaces.interface_id").Joins("JOIN ips ON ips.id = interfaces.floating_ip_id").Where("hosts.id = ?", srvid).Where("ips.type = ?", itype).Where("interfaces.`index` = ?", index).Row()
+
+	row.Scan(&result)
+
+	return result
+}
+
+func (c *Config) GetInterfaceFloatingIPNetmask(srvid int, itype string, index int) string {
+	var result string
+
+	row := c.DB.Table("hosts").Select("ips.netmask").Joins("JOIN host_interfaces ON host_interfaces.host_id = hosts.id").Joins("JOIN interfaces ON interfaces.id = host_interfaces.interface_id").Joins("JOIN ips ON ips.id = interfaces.floating_ip_id").Where("hosts.id = ?", srvid).Where("ips.type = ?", itype).Where("interfaces.`index` = ?", index).Row()
+
+	row.Scan(&result)
+
+	return result
+}
+
+func (c *Config) GetInterfaceFloatingIPGateway(srvid int, itype string, index int) string {
+	var result string
+
+	row := c.DB.Table("hosts").Select("ips.gateway").Joins("JOIN host_interfaces ON host_interfaces.host_id = hosts.id").Joins("JOIN interfaces ON interfaces.id = host_interfaces.interface_id").Joins("JOIN ips ON ips.id = interfaces.floating_ip_id").Where("hosts.id = ?", srvid).Where("ips.type = ?", itype).Where("interfaces.`index` = ?", index).Row()
+
+	row.Scan(&result)
+
+	return result
+}
+
 func (c *Config) GetDNSIndex(srvid int) []string {
 	var result []string
 

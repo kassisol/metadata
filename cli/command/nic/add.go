@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var nicAddFloatingIP string
 var nicAddIndex int
 
 func newAddCommand() *cobra.Command {
@@ -21,6 +22,7 @@ func newAddCommand() *cobra.Command {
 	}
 
 	flags := cmd.Flags()
+	flags.StringVarP(&nicAddFloatingIP, "floating-ip", "f", "", "Floating IP address")
 	flags.IntVarP(&nicAddIndex, "index", "i", 0, "NIC index")
 
 	return cmd
@@ -40,7 +42,7 @@ func runAdd(cmd *cobra.Command, args []string) {
 		os.Exit(-1)
 	}
 
-	s.AddInterface(nicAddIndex, args[0], args[1])
+	s.AddInterface(nicAddIndex, args[0], args[1], nicAddFloatingIP)
 }
 
 var addDescription = `
