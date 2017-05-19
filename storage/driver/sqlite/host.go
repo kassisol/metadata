@@ -59,7 +59,7 @@ func (c *Config) ListHost(filter map[string]string) []driver.HostResult {
 		var uuid string
 		var profile string
 
-		rows.Scan(&id, &enabled, &name, &uuid, &profile)
+		rows.Scan(&id, &enabled, &name, &fqdn, &uuid, &profile)
 
 		h := driver.HostResult{
 			ID:         id,
