@@ -39,7 +39,7 @@ func (c *Config) get(path string) (string, error) {
 
 	resp := req.Get()
 
-	if resp.StatusCode != 200 {
+	if resp.Response.StatusCode != 200 {
 		return "", fmt.Errorf("Problem fetching information")
 	}
 
