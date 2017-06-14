@@ -28,4 +28,4 @@ release: .github-release
 
 .DEFAULT_GOAL := ci
 
-.PHONY: .dapper $(TARGETS) clean help release
+.PHONY: .dapper .github-release $(TARGETS) clean help release
