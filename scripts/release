@@ -28,4 +28,3 @@ fi
 ./.github-release release --user ${GITHUB_USER} --repo ${REPO_NAME} --tag ${VERSION} --pre-release --draft
 
 upload_file "bin"
-upload_file "dist"
