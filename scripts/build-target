@@ -1,13 +1,12 @@
 #!/bin/bash
 set -e
 
-GITHUB_USER="kassisol"
-REPO_NAME="metadata"
-BIN_NAME=$REPO_NAME
-
 CGO_ENABLED=0
 
-OUTPUT=${OUTPUT:-bin/$BIN_NAME}
+BUILD_DIR=${BUILD_DIR:-../../bin}
+BUILD_BIN=${1:-metadata}
+
+OUTPUT="${BUILD_DIR}/${BUILD_BIN}"
 
 source $(dirname $0)/version
 
@@ -16,23 +15,26 @@ if [ -n "$DIRTY" ]; then
 	GITSTATE="dirty"
 fi
 
-CONST="-X github.com/${GITHUB_USER}/${REPO_NAME}/version.Version=$VERSION -X github.com/${GITHUB_USER}/${REPO_NAME}/version.GitCommit=${COMMIT} -X github.com/${GITHUB_USER}/${REPO_NAME}/version.GitState=${GITSTATE} -X github.com/${GITHUB_USER}/${REPO_NAME}/version.BuildDate=$(date +%s)"
+CONST="-X github.com/kassisol/metadata/version.Version=${VERSION} -X github.com/kassisol/metadata/version.GitCommit=${COMMIT} -X github.com/kassisol/metadata/version.GitState=${GITSTATE} -X github.com/kassisol/metadata/version.BuildDate=$(date +%s)"
+
+LDFLAGS=${LDFLAGS:-"-linkmode external -extldflags -static -s -w"}
 
 cd $(dirname $0)/..
+cd cmd/${BUILD_BIN}
 
-echo " Building ${VERSION} from ${COMMIT} on ${ARCH}"
+echo " Building ${BUILD_BIN} ${VERSION} from ${COMMIT} on ${ARCH}"
 
 if [ "$CROSS" = 1 ]; then
 	GOOS=darwin go build -ldflags "${CONST}" -o ${OUTPUT}-Darwin-x86_64
 	GOARCH=arm64 go build -ldflags "${CONST}" -o ${OUTPUT}-Linux-arm64
 	GOARCH=arm go build -ldflags "${CONST}" -o ${OUTPUT}-Linux-arm
-	go build -ldflags "${CONST} -linkmode external -extldflags -static -s -w" -o ${OUTPUT}-Linux-x86_64
+	go build -ldflags "${CONST} ${LDFLAGS}" -o ${OUTPUT}-Linux-x86_64
 
 	strip --strip-all ${OUTPUT}-Linux-x86_64
 
 	echo Built ${OUTPUT}-Linux-x86_64
 else
-	go build -ldflags "${CONST} -linkmode external -extldflags -static -s -w" -o ${OUTPUT}
+	go build -ldflags "${CONST} ${LDFLAGS}" -o ${OUTPUT}
 
 	strip --strip-all ${OUTPUT}
 

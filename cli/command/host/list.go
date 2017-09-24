@@ -8,8 +8,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/juliengk/go-utils"
-	"github.com/kassisol/metadata/cli/command"
-	"github.com/kassisol/metadata/storage"
+	"github.com/kassisol/metadata/api/storage"
+	"github.com/kassisol/metadata/pkg/adf"
 	"github.com/spf13/cobra"
 )
 
@@ -33,7 +33,12 @@ func newListCommand() *cobra.Command {
 func runList(cmd *cobra.Command, args []string) {
 	defer utils.RecoverFunc()
 
-	s, err := storage.NewDriver("sqlite", command.DBFilePath)
+	cfg := adf.NewDaemon()
+	if err := cfg.Init(); err != nil {
+		log.Fatal(err)
+	}
+
+	s, err := storage.NewDriver("sqlite", cfg.App.Dir.Root)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,10 +50,10 @@ func runList(cmd *cobra.Command, args []string) {
 
 	if len(hosts) > 0 {
 		w := tabwriter.NewWriter(os.Stdout, 20, 1, 2, ' ', 0)
-		fmt.Fprintln(w, "ID\tENABLED\tNAME\tFQDN\tUUID\tINTERFACES\tPROFILE")
+		fmt.Fprintln(w, "ID\tENABLED\tNAME\tFQDN\tINTERFACES\tPROFILE")
 
 		for _, host := range hosts {
-			fmt.Fprintf(w, "%d\t%t\t%s\t%s\t%s\t%s\t%s\n", host.ID, host.Enabled, host.Name, host.FQDN, host.UUID, strings.Join(host.Interfaces, ", "), host.Profile)
+			fmt.Fprintf(w, "%d\t%t\t%s\t%s\t%s\t%s\n", host.ID, host.Enabled, host.Name, host.FQDN, strings.Join(host.Interfaces, ", "), host.Profile)
 		}
 
 		w.Flush()

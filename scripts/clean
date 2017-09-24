@@ -3,5 +3,5 @@ set -e
 
 cd $(dirname $0)/..
 
-rm -rf bin
+rm -rf bin dist
 rm -f .dapper .github-release

@@ -7,8 +7,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/juliengk/go-utils"
-	"github.com/kassisol/metadata/cli/command"
-	"github.com/kassisol/metadata/storage"
+	"github.com/kassisol/metadata/api/storage"
+	"github.com/kassisol/metadata/pkg/adf"
 	"github.com/spf13/cobra"
 )
 
@@ -30,9 +30,14 @@ func newListCommand() *cobra.Command {
 }
 
 func runList(cmd *cobra.Command, args []string) {
-	defer utils.RecoverFunc()
+//	defer utils.RecoverFunc()
 
-	s, err := storage.NewDriver("sqlite", command.DBFilePath)
+	cfg := adf.NewDaemon()
+	if err := cfg.Init(); err != nil {
+		log.Fatal(err)
+	}
+
+	s, err := storage.NewDriver("sqlite", cfg.App.Dir.Root)
 	if err != nil {
 		log.Fatal(err)
 	}

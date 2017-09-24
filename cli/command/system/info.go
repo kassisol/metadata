@@ -5,9 +5,8 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/juliengk/go-utils/filedir"
-	"github.com/kassisol/metadata/cli/command"
-	"github.com/kassisol/metadata/storage"
+	"github.com/kassisol/metadata/api/storage"
+	"github.com/kassisol/metadata/pkg/adf"
 	"github.com/kassisol/metadata/version"
 	"github.com/spf13/cobra"
 )
@@ -29,11 +28,12 @@ func runInfo(cmd *cobra.Command, args []string) {
 		os.Exit(-1)
 	}
 
-	if !filedir.FileExists(command.DBFilePath) {
-		log.Fatal("Initialization needs to be done first")
+	cfg := adf.NewDaemon()
+	if err := cfg.Init(); err != nil {
+		log.Fatal(err)
 	}
 
-	s, err := storage.NewDriver("sqlite", command.DBFilePath)
+	s, err := storage.NewDriver("sqlite", cfg.App.Dir.Root)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,14 +45,9 @@ func runInfo(cmd *cobra.Command, args []string) {
 	fmt.Println("Interfaces:", s.CountInterface())
 	fmt.Println("Hosts:", s.CountHost())
 
-	fmt.Println("API:")
-	fmt.Println(" FQDN:", s.GetConfig("api_fqdn")[0].Value)
-	fmt.Println(" Bind Address:", s.GetConfig("api_bind")[0].Value)
-	fmt.Println(" Bind Port:", s.GetConfig("api_port")[0].Value)
-
 	fmt.Println("Server Version:", version.Version)
 	fmt.Println("Storage Driver: sqlite")
-	fmt.Println("Metadata Root Dir:", command.AppPath)
+	fmt.Println("Metadata Root Dir:", cfg.App.Dir.Root)
 }
 
 var infoDescription = `

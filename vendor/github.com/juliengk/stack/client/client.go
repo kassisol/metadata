@@ -1,20 +1,26 @@
 package client
 
 import (
+	"context"
 	"crypto/tls"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"time"
 )
 
 type Config struct {
-	//        UserAgent       string
 	Scheme  string
 	Host    string
 	Port    int
 	Path    string
 	Timeout int
+}
+
+type ConfigUnix struct {
+	Path   string
+	Config Config
 }
 
 type BasicAuth struct {
@@ -23,11 +29,12 @@ type BasicAuth struct {
 }
 
 type Request struct {
-	Url       string
-	Headers   map[string]string
-	BasicAuth BasicAuth
-	Values    map[string][]string
-	Timeout   int
+	UnixSocketPath string
+	URL            string
+	Headers        map[string]string
+	BasicAuth      BasicAuth
+	Values         map[string][]string
+	Timeout        int
 }
 
 type Result struct {
@@ -51,8 +58,18 @@ func New(c *Config) (Request, error) {
 	txtUrl := buildUrl(c)
 
 	return Request{
-		Url:     txtUrl,
+		URL:     txtUrl,
 		Timeout: c.Timeout,
+	}, nil
+}
+
+func NewUnix(c *ConfigUnix) (Request, error) {
+	txtUrl := buildUrl(&c.Config)
+
+	return Request{
+		UnixSocketPath: c.Path,
+		URL:            txtUrl,
+		Timeout:        c.Config.Timeout,
 	}, nil
 }
 
@@ -88,18 +105,23 @@ func (r *Request) ValueAdd(name, value string) {
 }
 
 func (r *Request) Do(method string, data io.Reader) Result {
+	clnt := &http.Client{
+		Timeout: time.Second * time.Duration(r.Timeout),
+	}
+
 	tlsConfig := &tls.Config{InsecureSkipVerify: true}
 
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 
-	timeout := time.Second * time.Duration(r.Timeout)
-
-	clnt := &http.Client{
-		Transport: transport,
-		Timeout:   timeout,
+	if len(r.UnixSocketPath) > 0 {
+		transport.DialContext = func(_ context.Context, _, _ string) (net.Conn, error) {
+			return net.Dial("unix", r.UnixSocketPath)
+		}
 	}
 
-	req, err := http.NewRequest(method, r.Url, data)
+	clnt.Transport = transport
+
+	req, err := http.NewRequest(method, r.URL, data)
 	if err != nil {
 		return Result{Error: err}
 	}
@@ -122,6 +144,8 @@ func (r *Request) Do(method string, data io.Reader) Result {
 				q.Add(k, v)
 			}
 		}
+
+		req.URL.RawQuery = q.Encode()
 	}
 
 	resp, err := clnt.Do(req)
@@ -164,7 +188,6 @@ func (r *Request) Post(data io.Reader) Result {
 	return r.Do("POST", data)
 }
 
-/*
 func (r *Request) Put(data io.Reader) Result {
 	return r.Do("PUT", data)
 }
@@ -172,4 +195,3 @@ func (r *Request) Put(data io.Reader) Result {
 func (r *Request) Delete() Result {
 	return r.Do("DELETE", nil)
 }
-*/

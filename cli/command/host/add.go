@@ -5,15 +5,14 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/juliengk/go-utils"
-	"github.com/kassisol/metadata/cli/command"
-	"github.com/kassisol/metadata/storage"
+	"github.com/kassisol/metadata/api/storage"
+	"github.com/kassisol/metadata/pkg/adf"
 	"github.com/spf13/cobra"
 )
 
 var (
 	hostAddEnable    bool
 	hostAddFQDN      string
-	hostAddUUID      string
 	hostAddProfile   string
 	hostAddInterface []string
 )
@@ -29,7 +28,6 @@ func newAddCommand() *cobra.Command {
 	flags := cmd.Flags()
 	flags.BoolVarP(&hostAddEnable, "enable", "e", true, "Enable host entry")
 	flags.StringVarP(&hostAddFQDN, "fqdn", "f", "", "Set FQDN")
-	flags.StringVarP(&hostAddUUID, "uuid", "u", "", "Set UUID")
 	flags.StringVarP(&hostAddProfile, "profile", "p", "", "Set profile")
 	flags.StringSliceVarP(&hostAddInterface, "interface", "i", []string{}, "Set interfaces")
 
@@ -39,7 +37,12 @@ func newAddCommand() *cobra.Command {
 func runAdd(cmd *cobra.Command, args []string) {
 	defer utils.RecoverFunc()
 
-	s, err := storage.NewDriver("sqlite", command.DBFilePath)
+	cfg := adf.NewDaemon()
+	if err := cfg.Init(); err != nil {
+		log.Fatal(err)
+	}
+
+	s, err := storage.NewDriver("sqlite", cfg.App.Dir.Root)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,7 +53,7 @@ func runAdd(cmd *cobra.Command, args []string) {
 		os.Exit(-1)
 	}
 
-	if err := s.AddHost(hostAddEnable, args[0], hostAddFQDN, hostAddUUID, hostAddProfile, hostAddInterface); err != nil {
+	if err := s.AddHost(hostAddEnable, args[0], hostAddFQDN, hostAddProfile, hostAddInterface); err != nil {
 		log.Fatal(err)
 	}
 }

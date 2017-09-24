@@ -30,7 +30,7 @@ func ConvertSliceToMap(sep string, slice []string) map[string]string {
 
 	if len(slice) > 0 {
 		for _, s := range slice {
-			if !strings.Contains(s, sep) {
+			if ! strings.Contains(s, sep) {
 				continue
 			}
 
