@@ -20,9 +20,14 @@ func API(addr string) {
 
 	v1 := e.Group("/metadata/v1")
 
-	v1.GET("", metadata.AllHandle)
-	v1.GET("/", metadata.AllHandle)
-	v1.GET(".json", metadata.AllJsonHandle)
+	MMethods := []string{
+		"GET",
+		"HEAD",
+	}
+
+	v1.Match(MMethods, "", metadata.AllHandle)
+	v1.Match(MMethods, "/", metadata.AllHandle)
+	v1.Match(MMethods, ".json", metadata.AllJsonHandle)
 
 	v1.GET("/id", metadata.IDHandle)
 	v1.GET("/hostname", metadata.HostnameHandle)

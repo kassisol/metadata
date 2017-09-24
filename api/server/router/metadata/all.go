@@ -24,6 +24,10 @@ func AllHandle(c echo.Context) error {
 		"tags/",
 	}
 
+	if c.Request().Method == "HEAD" {
+		return c.NoContent(http.StatusOK)
+	}
+
 	return c.String(http.StatusOK, strings.Join(result, "\n"))
 }
 
@@ -132,6 +136,10 @@ func AllJsonHandle(c echo.Context) error {
 	}
 	if len(tags) > 0 {
 		cloudinit.Tags = tags
+	}
+
+	if c.Request().Method == "HEAD" {
+		return c.NoContent(http.StatusOK)
 	}
 
 	return c.JSON(http.StatusOK, &cloudinit)
