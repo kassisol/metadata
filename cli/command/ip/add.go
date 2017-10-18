@@ -11,7 +11,6 @@ import (
 )
 
 var (
-	ipAddIPAddr  string
 	ipAddNetmask string
 	ipAddGateway string
 )
@@ -25,7 +24,6 @@ func newAddCommand() *cobra.Command {
 	}
 
 	flags := cmd.Flags()
-	flags.StringVarP(&ipAddIPAddr, "ip", "i", "", "IP address")
 	flags.StringVarP(&ipAddNetmask, "netmask", "n", "", "Netmask")
 	flags.StringVarP(&ipAddGateway, "gateway", "g", "", "Gateway")
 
