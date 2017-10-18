@@ -32,6 +32,10 @@ func (c *Config) ListData(filter map[string]string) []types.Data {
 
 	sql := c.DB.Table("data").Select("id, name, type, value, description")
 
+	if v, ok := filter["name"]; ok {
+		sql = sql.Where("name = ?", v)
+	}
+
 	if v, ok := filter["type"]; ok {
 		sql = sql.Where("type = ?", v)
 	}

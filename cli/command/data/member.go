@@ -49,15 +49,13 @@ func runMember(cmd *cobra.Command, args []string) {
 		os.Exit(-1)
 	}
 
-	/*
-		if !s.FindProfile(args[0]) {
-			log.Fatalf("%s does not exist", args[0])
-		}
+	if len(s.ListProfile(map[string]string{"name": args[0]})) == 0 {
+		log.Fatalf("%s does not exist", args[0])
+	}
 
-		if !s.FindData(args[1]) {
-			log.Fatalf("%s does not exist", args[1])
-		}
-	*/
+	if len(s.ListData(map[string]string{"name": args[1]})) == 0 {
+		log.Fatalf("%s does not exist", args[1])
+	}
 
 	if dataMemberAdd {
 		s.AddDataToProfile(args[0], args[1])
