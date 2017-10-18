@@ -33,6 +33,11 @@ func newMemberCommand() *cobra.Command {
 func runMember(cmd *cobra.Command, args []string) {
 	defer utils.RecoverFunc()
 
+	if len(args) < 2 || len(args) > 2 {
+		cmd.Usage()
+		os.Exit(-1)
+	}
+
 	cfg := adf.NewDaemon()
 	if err := cfg.Init(); err != nil {
 		log.Fatal(err)
@@ -43,11 +48,6 @@ func runMember(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 	defer s.End()
-
-	if len(args) < 2 || len(args) > 2 {
-		cmd.Usage()
-		os.Exit(-1)
-	}
 
 	if len(s.ListProfile(map[string]string{"name": args[0]})) == 0 {
 		log.Fatalf("%s does not exist", args[0])

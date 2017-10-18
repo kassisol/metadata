@@ -25,6 +25,11 @@ func newRemoveCommand() *cobra.Command {
 func runRemove(cmd *cobra.Command, args []string) {
 	defer utils.RecoverFunc()
 
+	if len(args) < 1 || len(args) > 1 {
+		cmd.Usage()
+		os.Exit(-1)
+	}
+
 	cfg := adf.NewDaemon()
 	if err := cfg.Init(); err != nil {
 		log.Fatal(err)
@@ -35,11 +40,6 @@ func runRemove(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 	defer s.End()
-
-	if len(args) < 1 || len(args) > 1 {
-		cmd.Usage()
-		os.Exit(-1)
-	}
 
 	if err = s.RemoveIP(args[0]); err != nil {
 		log.Fatal(err)

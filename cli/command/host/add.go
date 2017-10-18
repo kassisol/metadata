@@ -37,6 +37,11 @@ func newAddCommand() *cobra.Command {
 func runAdd(cmd *cobra.Command, args []string) {
 	defer utils.RecoverFunc()
 
+	if len(args) < 1 || len(args) > 1 {
+		cmd.Usage()
+		os.Exit(-1)
+	}
+
 	cfg := adf.NewDaemon()
 	if err := cfg.Init(); err != nil {
 		log.Fatal(err)
@@ -47,11 +52,6 @@ func runAdd(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 	defer s.End()
-
-	if len(args) < 1 || len(args) > 1 {
-		cmd.Usage()
-		os.Exit(-1)
-	}
 
 	if err := s.AddHost(hostAddEnable, args[0], hostAddFQDN, hostAddProfile, hostAddInterface); err != nil {
 		log.Fatal(err)

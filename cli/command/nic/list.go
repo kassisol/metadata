@@ -32,6 +32,11 @@ func newListCommand() *cobra.Command {
 func runList(cmd *cobra.Command, args []string) {
 //	defer utils.RecoverFunc()
 
+	if len(args) > 0 {
+		cmd.Usage()
+		os.Exit(-1)
+	}
+
 	cfg := adf.NewDaemon()
 	if err := cfg.Init(); err != nil {
 		log.Fatal(err)

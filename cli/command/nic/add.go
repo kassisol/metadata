@@ -31,6 +31,11 @@ func newAddCommand() *cobra.Command {
 func runAdd(cmd *cobra.Command, args []string) {
 	defer utils.RecoverFunc()
 
+	if len(args) < 2 || len(args) > 2 {
+		cmd.Usage()
+		os.Exit(-1)
+	}
+
 	cfg := adf.NewDaemon()
 	if err := cfg.Init(); err != nil {
 		log.Fatal(err)
@@ -41,11 +46,6 @@ func runAdd(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 	defer s.End()
-
-	if len(args) < 2 || len(args) > 2 {
-		cmd.Usage()
-		os.Exit(-1)
-	}
 
 	s.AddInterface(nicAddIndex, args[0], args[1], nicAddFloatingIP)
 }
