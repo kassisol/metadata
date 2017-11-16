@@ -37,9 +37,12 @@ func (c *Config) get(path string) (string, error) {
 
 	req, _ := client.New(cc)
 
-	resp := req.Get()
+	result := req.Get()
+	if result.Error != nil {
+		return result.Error
+	}
 
-	if resp.Response.StatusCode != 200 {
+	if result.Response.StatusCode != 200 {
 		return "", fmt.Errorf("Problem fetching information")
 	}
 
