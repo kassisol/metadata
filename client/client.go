@@ -39,14 +39,14 @@ func (c *Config) get(path string) (string, error) {
 
 	result := req.Get()
 	if result.Error != nil {
-		return result.Error
+		return "", result.Error
 	}
 
 	if result.Response.StatusCode != 200 {
 		return "", fmt.Errorf("Problem fetching information")
 	}
 
-	return string(resp.Body), nil
+	return string(result.Body), nil
 }
 
 func (c *Config) GetAll() (string, error) {
