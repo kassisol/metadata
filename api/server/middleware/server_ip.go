@@ -1,6 +1,9 @@
 package api
 
 import (
+	"net"
+
+	"github.com/juliengk/go-utils/validation"
 	"github.com/kassisol/metadata/api/storage"
 	"github.com/kassisol/metadata/pkg/adf"
 	"github.com/labstack/echo"
@@ -20,7 +23,12 @@ func ServerIP() echo.MiddlewareFunc {
 			}
 			defer s.End()
 
-			ip := c.RealIP()
+			ra := c.Request().RemoteAddr
+			ip, _, _ := net.SplitHostPort(ra)
+
+			if err := validation.IsValidIP(ip); err != nil {
+				return err
+			}
 
 			id := s.GetIDFromIP(ip)
 			if id == 0 {
