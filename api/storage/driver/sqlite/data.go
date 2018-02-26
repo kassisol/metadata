@@ -17,6 +17,23 @@ func (c *Config) AddData(name, dtype, value, description string) error {
 	return nil
 }
 
+func (c *Config) UpdateData(name, value, description string) error {
+	data := Data{}
+	c.DB.Where("name = ?", name).First(&data)
+
+	if len(value) > 0 {
+		data.Value = value
+	}
+
+	if len(description) > 0 {
+		data.Description = description
+	}
+
+	c.DB.Save(&data)
+
+	return nil
+}
+
 func (c *Config) RemoveData(name string) error {
 	if c.memberOfProfile(name) {
 		return fmt.Errorf("data \"%s\" cannot be removed. It is being used by a profile", name)

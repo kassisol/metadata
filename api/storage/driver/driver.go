@@ -6,6 +6,7 @@ import (
 
 type Storager interface {
 	AddData(name, dtype, value, description string) error
+	UpdateData(name, value, description string) error
 	ListData(map[string]string) []types.Data
 	RemoveData(name string) error
 	AddDataToProfile(profile, data string)
