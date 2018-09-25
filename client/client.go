@@ -29,10 +29,11 @@ func (c *Config) buildPath(extra string) string {
 
 func (c *Config) get(path string) (string, error) {
 	cc := &client.Config{
-		Scheme: c.URL.Scheme,
-		Host:   c.URL.Host,
-		Port:   c.URL.Port,
-		Path:   c.buildPath(path),
+		Scheme:  c.URL.Scheme,
+		Host:    c.URL.Host,
+		Port:    c.URL.Port,
+		Path:    c.buildPath(path),
+		Timeout: 10,
 	}
 
 	req, _ := client.New(cc)
